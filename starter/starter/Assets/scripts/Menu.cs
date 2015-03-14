@@ -1,60 +1,74 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class Menu : MonoBehaviour {
 
 	public Data data;
+	public Text information;
+	public Text playButtonText;
+	public Text quitButtonText;
+	public Text titleText;	
+	public Button playButton;
+	public Button quitButton;
 
 	// Use this for initialization
 	void Start () {
-		Time.timeScale = 0;
+		data = GameObject.Find("Data").GetComponent<Data>();
+		setMenu();
 	}
-	
-	// Update is called once per frame
-	void Update () {
-		if (Input.GetKeyDown(KeyCode.Escape)) {
-			Pause();
-		}
-	}
-	void OnGUI() {
-		switch (data.GameState)
-		{
+	void setMenu() {
+		switch(data.GameState) {
 		case GameStates.MainMenu:
 			MainMenu();
 			break;
 		case GameStates.Paused:
 			PauseMenu();
 			break;
+		case GameStates.Running:
+			break;
+		case GameStates.GameOverLoss:
+			GameOverMenu();
+			break;
+		case GameStates.GameOverWin:
+			WinMenu();
+			break;
 		}
+	}
+
+	void PrintTitle(string text = "") {
+		titleText.text = Data.title;
+		information.text = text + Data.information;
 		
 	}
 	void MainMenu() {
-		GUI.Label(new Rect((Screen.width / 2) - 25, 10, 200, 200), Data.title);
-		if (GUI.Button(new Rect((Screen.width / 2) - 50, Screen.height - 100 , 100, 50), "Start")) {
-			StartGame();
-		}
+		playButtonText.text = "Start";
+		PrintTitle();
+		
+	}
+	void GameOverMenu() {
+		playButtonText.text = "Retry";
+		PrintTitle("Game Over\n");
+	}
+	void WinMenu() {
+		playButtonText.text = "Restart";
+		PrintTitle("Congratulations You Survived\n");
 	}
 	void PauseMenu() {
-		GUI.Label(new Rect((Screen.width / 2) - 25, 10, 200, 200), Data.title);
-		GUI.Label(new Rect((Screen.width / 2) - 25, 110, 200, 200), "PAUSED");
-		if (GUI.Button(new Rect((Screen.width / 2) - 50, Screen.height - 100 , 100, 50), "Quit")) {
-			Application.Quit();
-		}
-		if (GUI.Button(new Rect((Screen.width / 2) - 50, Screen.height - 200 , 100, 50), "Continue")) {
-			UnPause();
-		}
+		playButtonText.text = "Continue";
+		PrintTitle("PAUSED\n");
 	}
-	void Pause() {
-		Time.timeScale = 0;
-		data.GameState = GameStates.Paused;
+	public void Quit() {
+		Debug.Log("Quiting Game");
+		Application.Quit();
 	}
-	void UnPause() {
-		Time.timeScale = 1;
-		data.GameState = GameStates.Running;
+	public void StartGame() {
+		Debug.Log("starting Game");
+		hideMenu();
+		data.SetGameState(GameStates.Running);
 	}
-	void StartGame() {
-		Time.timeScale = 1;
-		data.GameState = GameStates.Running;
-		//TODO: Send message
+	void hideMenu() {
+		Debug.Log("Destroying");
+		Destroy(this.gameObject);
 	}
 }
